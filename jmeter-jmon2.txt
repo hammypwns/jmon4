@@ -1,0 +1,28 @@
+jmeter commands 
+
+
+screen -S jmeter
+
+cd /home/bob/auto/apache-jmeter-4.0/bin
+
+sh jmeter.sh -n -t ../plans/xxx.jmx
+
+
+
+Jmon commands
+
+screen -S jmon
+
+cd /home/bob/auto/jmon
+
+./jmon.bin "AA 6.1 b74"
+
+
+
+screen commands
+
+screen -ls 	(list all screen ID's)
+screen -r name  (attaches to the screen ID)
+screen -S name (used to start a screen)
+CTRL-a d will detach screen from the TTY and put it in the background. 
+Resume with screen -r

@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>NCA 3.0.0-37 Monitor</title>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/redmond/jquery-ui.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+	 crossorigin="anonymous">
+	<link href="css/jquery.circliful.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+	 crossorigin="anonymous">
+	<link rel="stylesheet" href="css/examples.css" type="text/css">
+	<link rel="stylesheet" href="css/custom.css" type="text/css">
+	<link rel="icon" type="image/png" href="/favicon-area-chart.ico">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	 crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	 crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+	 crossorigin="anonymous"></script>
+	<script src="js/jquery.circliful.min.js"></script>
+
+	<script type="text/javascript" src="jmon.js"></script>
+	<!-- <script type="text/javascript" src="notes.js"></script> -->
+</head>
+
+<body ng-app="app" , ng-controller="mainCtrl" , onload="calcAvgPerSec(); calcFailPercentage();">
+
+	<div id="test123" align="center">
+		<div id="users-contain" class="ui-widget">
+			<table>
+				<thead>
+					<tr class="ui-widget-header">
+						<th>Product / Test</th>
+						<th>Days</th>
+						<th>HH:MM:SS</th>
+						<th>Logins</th>
+						<th>Failed</th>
+						<th>% Failed <button id="btnOpacity" class="ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="calcFailPercentage()"><i
+								 class="fas fa-sync-alt" style="vertical-align: middle;"></i></button></th>
+						<th>AVG/sec <button id="btnOpacity" class="ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="calcAvgPerSec()"><i
+								 class="fas fa-sync-alt" style="vertical-align: middle;"></i></button></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td id="name-cell">{{tableInfo.test}}
+							<button id="edit-btn" class="ui-widget ui-state-default ui-corner-all ui-button-text-only" ng-click="toggleEdit()">{{editShown
+								? 'Close' : 'Edit'}}</button>
+						</td>
+						<td id="days">{{tableInfo.days}}</td>
+						<td id="hms">{{tableInfo.time}}</td>
+						<td id="passed">{{tableInfo.passed}}</td>
+						<td id="failed">{{tableInfo.failed}}</td>
+						<td id="failPercent"></td>
+						<td id="average"></td>
+					</tr>
+				</tbody>
+			</table>
+			<form ng-show="editShown" ng-submit="setInfo(name)">
+				<input type="text" placeholder="New test name" ng-model="name">
+				<button type="submit" class="ui-widget ui-state-default ui-button-text-only">Set Name</button>
+			</form>
+		</div>
+	</div>
+	<div align="center">
+		<div class="grid-container">
+			<div class="demo-container">
+				<div id="placeholder" class="demo-placeholder"></div>
+			</div>
+			<textarea id="notesTextArea" class="textarea" placeholder="Notes" spellcheck="false">{{ notesTable[0] }}</textarea>
+		</div>
+		<div align="center">
+			<table>
+				<tbody>
+					<tr>
+						<td>
+							<button ng-click="getConfigData();setGraphMode('m')" onclick="calcFailPercentage(); calcAvgPerSec()" class="minuteSeries ui-widget ui-state-default ui-corner-all ui-button-text-only">Minutes</button>
+							[
+							<a href="/system/test/data?pm">see data</a> ]
+							<span></span>
+						</td>
+
+						<td width=>
+							<button ng-click="setGraphMode('h')" class="hourSeries ui-widget ui-state-default ui-corner-all ui-button-text-only">Hours</button>
+							[
+							<a href="/system/test/data?ph">see data</a> ]
+							<span></span>
+						</td>
+
+						<td width=>
+							<button ng-click="setGraphMode('d')" class="daySeries ui-widget ui-state-default ui-corner-all ui-button-text-only">Days</button>
+							[
+							<a href="/system/test/data?pd">see data</a> ]
+							<span></span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="container table-area">
+		<table id="vm-table" class="table table-sm">
+			<thead>
+				<th></th>
+				<th>Machine Name</th>
+				<th>ESX Host IP</th>
+				<th>IP Address</th>
+				<th>Full DNS</th>
+				<th>Notes</th>
+				<th style="text-align: center;">Actions &nbsp&nbsp
+					<button class="btn btn-outline-success btn-sm table-btn" ng-click="toggleAddRow()">
+						<i class="fas fa-{{addRowShown ? 'times' : 'plus'}}"></i>
+					</button>
+				</th>
+			</thead>
+			<tbody ng-repeat="row in vmTable">
+				<tr>
+					<td>
+						<button class="btn btn-row btn-outline-primary btn-sm table-btn" data-toggle="collapse" 
+						 aria-expanded="false" aria-controls="collapse{{$index}}" ng-click="moveRowDown($index)"><i class="fas fa-arrow-down"></i></button>
+						<button class="btn btn-row btn-outline-primary btn-sm table-btn" data-toggle="collapse"
+						 aria-expanded="false" aria-controls="collapse{{$index}}" ng-click="moveRowUp($index)"><i class="fas fa-arrow-up"></i></button>
+					</td>
+					<td>
+						<div ng-hide="editingData[$index]">{{row.name}}</div>
+						<div ng-show="editingData[$index]"><input type="text" ng-model="row.name" /></div>
+					</td>
+					<td>
+						<div ng-hide="editingData[$index]">{{row.host}}</div>
+						<div ng-show="editingData[$index]"><input type="text" ng-model="row.host" /></div>
+					</td>
+					<td>
+						<div ng-hide="editingData[$index]">{{row.ip}}</div>
+						<div ng-show="editingData[$index]"><input type="text" ng-model="row.ip" /></div>
+					</td>
+					<td>
+						<div ng-hide="editingData[$index]"><a href="{{row.dns}}" target="_blank">{{row.dns}}</a></div>
+						<div ng-show="editingData[$index]"><input type="text" ng-model="row.dns" /></div>
+					</td>
+					<td>
+						<div ng-hide="editingData[$index]">{{row.notes}}</div>
+						<div ng-show="editingData[$index]"><input type="text" ng-model="row.notes" /></div>
+					</td>
+					<td style="text-align: center">
+						<button ng-click="getVmInfo(row.name, row.host, $index)" class="btn btn-row btn-outline-primary btn-sm table-btn"
+						 data-toggle="collapse" data-target="#collapse{{$index}}" aria-expanded="false" aria-controls="collapse{{$index}}"><i
+							 class="fas fa-tachometer-alt"></i></button>
+						<button ng-hide="editingData[$index]" class="btn btn-row btn-outline-warning btn-sm table-btn" ng-click="modify($index)"><i
+							 class="fas fa-edit"></i></button>
+						<button ng-show="editingData[$index]" class="btn btn-row btn-outline-warning btn-sm table-btn" ng-click="update($index)">Update</i></button>
+						<button class="btn btn-row btn-outline-danger btn-sm table-btn" ng-click="deleteRow($index)"><i class="fas fa-times"></i></button>
+					</td>
+				</tr>
+				<tr class="collapse" id="collapse{{$index}}">
+					<td colspan="7" style="position: relative">
+						<div class="resource_monitor">
+							<div class="circle_container">
+								<div id="cpu_circle_{{$index}}"></div>
+							</div>
+							<div class="circle_container">
+								<div id="mem_circle_{{$index}}"></div>
+							</div>
+							<div class="circle_container">
+								<div id="disk_circle_{{$index}}"></div>
+							</div>
+						</div>
+						<button class="reload btn" ng-click="getVmInfo(row.name, row.host, $index)"><i class="fas fa-sync-alt"></i></button>
+					</td>
+				</tr>
+			</tbody>
+			<thbody>
+				<tr ng-show="addRowShown">
+					<form id="new-row-form" class="form-inline" ng-submit="addRow(newRow)">
+						<td></td>
+						<td><input type="text" placeholder="Name" ng-model="newRow.name"></td>
+						<td><input type="text" placeholder="ESX Host" ng-model="newRow.host"></td>
+						<td><input type="text" placeholder="IP Address" ng-model="newRow.ip"></td>
+						<td><input type="text" placeholder="Full DNS" ng-model="newRow.dns"></td>
+						<td style="display: flex;"><input type="text" placeholder="Notes" ng-model="newRow.notes">
+							<button type="submit" class="btn btn-sm">Submit</button></td>
+					</form>
+				</tr>
+			</thbody>
+		</table>
+	</div>
+	<div id="footer">
+		Copyright &copy; IAM
+	</div>
+	<!-- <script type="text/javascript" src="notes.js"></script> -->
+	<div onload="getNotesTable();"></div>
+</body>
+
+</html>
+
+<!-- <script type="text/javascript" src="misc.js"></script> -->
